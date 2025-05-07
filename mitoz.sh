@@ -1,4 +1,51 @@
-# mitogenome
+# 🌼🌼🌼 mitogenome组装简单版 🌼🌼🌼
+source activate getorganelle
+cd /data01/xush/1.mitogenome/0.data
+for i in *_1.fq.gz
+do
+i=${i%_1.fq.gz};
+extractfq -fq1 ${i}_1.fq.gz \
+          -fq2 ${i}_2.fq.gz \
+	  -outfq1 ${i}_1_extractfq.fq.gz \ 
+          -outfq2 ${i}_2_extractfq.fq.gz \
+	  -size_required 2 -gz
+done
+---------------------------------------------------
+安装mitoz的环境：先下载压缩包，然后激活环境
+mkdir -p ./mitoz3.6
+tar -xzf ./mitoz3.6.tar.gz -C ./mitoz3.6
+source /data01/xush/1.mitogenome/mitoz3.6/bin/activate
+
+source /data01/xush/1.mitogenome/mitoz3.6/bin/activate
+cd /data01/xush/1.mitogenome/0.data
+for i in ../0.data/*_1_extractfq.fq.gz; do
+    filename=$(basename "$i")              # 取出文件名部分
+    sample=${filename%_1_extractfq.fq.gz}  # 去掉后缀变成样本名
+    mitoz all \
+    --outprefix ${sample} \
+    --thread_number 20 \
+    --clade Chordata \
+    --genetic_code 2 \
+    --species_name "Sinocyclocheilus" \
+    --fq1 ../0.data/${sample}_1_extractfq.fq.gz \
+    --fq2 ../0.data/${sample}_2_extractfq.fq.gz \
+    --fastq_read_length 150 \
+    --assembler megahit \
+    --requiring_taxa Cyprinidae \
+    --workdir /data01/xush/1.mitogenome/2.results/${sample}_workdir
+done
+#或者不通过上面的直接加入参数--data_size_for_mt_assembly 3 
+#✅如果是脊椎动物（如鱼类、哺乳类、鸟类等）：
+--genetic_code 2
+代表 Vertebrate Mitochondrial Code（脊椎动物线粒体遗传密码）
+✅如果是无脊椎动物：
+昆虫：--genetic_code 5 （Invertebrate Mitochondrial）
+其他具体分类可能不同，可以查：NCBI genetic code tables
+---------------------------------------------
+
+
+---------------------------------------------
+# 🌼🌼🌼mitogenome组装复杂版🌼🌼🌼
 # 质控，fastqc *.fq.gz，cleandata的质量较好
 # 用bwa进行Mapping 基因组选择近缘物种的基因组
 cd /data01/xush/1.mitogenome/1.mapping/ref
