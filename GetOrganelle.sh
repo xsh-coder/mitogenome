@@ -1,4 +1,4 @@
-###extractfq 提取部分片段的数据(#提取的时候一般提取2个Gb即可，-size_required后面跟提取的数量)
+#🌼🌼🌼extractfq 提取部分片段的数据(#提取的时候一般提取2个Gb即可，-size_required后面跟提取的数量)🌼🌼🌼
 source activate getorganelle
 cd /data01/xush/1.mitogenome/0.data
 for i in *_1.fq.gz
@@ -11,7 +11,7 @@ extractfq -fq1 ${i}_1.fq.gz \
           -size_required 2 -gz
 done
 -----------------------------------------
-###利用提取的数据组装线粒体
+###🌼🌼🌼利用提取的数据组装线粒体🌼🌼🌼
 source activate geto
 cd /data01/zhaoyh/FangYT/xush-mito
 for i in *_1_extractfq.fq.gz; do
