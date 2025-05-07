@@ -16,7 +16,8 @@ mkdir -p ./mitoz3.6
 tar -xzf ./mitoz3.6.tar.gz -C ./mitoz3.6
 下载地址：https://www.dropbox.com/scl/fo/4md8irodd9flywxhp85wf/AEXYFykNDPgVuJ6nSS6CCjs?rlkey=gpouy6vue1rf9dgva4jqqcik0&e=1&dl=0 #直接下载
 source /data01/xush/1.mitogenome/mitoz3.6/bin/activate
-
+conda-unpack
+---------------------------------------------------
 source /data01/xush/1.mitogenome/mitoz3.6/bin/activate
 cd /data01/xush/1.mitogenome/0.data
 for i in ../0.data/*_1_extractfq.fq.gz; do
