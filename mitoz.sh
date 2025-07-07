@@ -1,5 +1,9 @@
 # 🌼🌼🌼 mitogenome组装简单版 🌼🌼🌼
-source activate getorganelle
+-----------------------------------------------------
+# Step 1: 提取过滤后的 fq 文件
+# 安装
+pip install extractfq
+# 运行，提取2Gb的数据
 cd /data01/xush/1.mitogenome/0.data
 for i in *_1.fq.gz
 do
@@ -10,15 +14,37 @@ extractfq -fq1 ${i}_1.fq.gz \
           -outfq2 ${i}_2_extractfq.fq.gz \
 	  -size_required 2 -gz
 done
+# Step 2: #组装，使用GetOrganelle v1.7.5 有参组装线粒体序列，
+#安装，我这里是用了yufan的环境，可以先自己尝试下载
+source /home/export/base/ycsc_lixx/lixx/online1/project/xush/software/bin/activate
+cd /home/export/base/ycsc_lixx/lixx/online1/project/xush/0.mitogenome
+OUTDIR="/home/export/base/ycsc_lixx/lixx/online1/project/xush/1.mito_results"
+
+for fq1 in *_1_extractfq.fq.gz
+do
+    sample=${fq1%%_1_extractfq.fq.gz}
+    fq2=${sample}_2_extractfq.fq.gz
+    get_organelle_from_reads.py -1 "$fq1" -2 "$fq2" -R 10 -k 21,45,65,85,105 -F animal_mt -o "${OUTDIR}/${sample}-out"
+done
+# 结果*.complete.*.fasta是组装出的完整线粒体基因组的结果文件
 ---------------------------------------------------
+# mitoz组装
 安装mitoz的环境：先下载压缩包，然后激活环境
+# the installation may be out-of-date, check https://github.com/linzhi2013/MitoZ/wiki/Installation
+# download this file first: https://github.com/linzhi2013/MitoZ/blob/master/version_2.3/mitozEnv.yaml
+# create the environment mitozEnv for mitoz, and install dependancies for mitoz in mitozEnv.yaml
+conda env create -n mitozEnv -f mitozEnv.yaml
+conda activate mitozEnv
+conda install -c bioconda mitoz
+
+# 或者是
 mkdir -p ./mitoz3.6
 tar -xzf ./mitoz3.6.tar.gz -C ./mitoz3.6
 下载地址：https://www.dropbox.com/scl/fo/4md8irodd9flywxhp85wf/AEXYFykNDPgVuJ6nSS6CCjs?rlkey=gpouy6vue1rf9dgva4jqqcik0&e=1&dl=0 #直接下载
 source /data01/xush/1.mitogenome/mitoz3.6/bin/activate
 conda-unpack
 ---------------------------------------------------
-source /data01/xush/1.mitogenome/mitoz3.6/bin/activate
+source /data01/xush/1.mitogenome/mitoz3.6/bin/activate #激活你自己安装的motiz的环境
 cd /data01/xush/1.mitogenome/0.data
 for i in ../0.data/*_1_extractfq.fq.gz; do
     filename=$(basename "$i")              # 取出文件名部分
@@ -32,7 +58,6 @@ for i in ../0.data/*_1_extractfq.fq.gz; do
     --fq1 ../0.data/${sample}_1_extractfq.fq.gz \
     --fq2 ../0.data/${sample}_2_extractfq.fq.gz \
     --fastq_read_length 150 \
-    --assembler megahit \
     --requiring_taxa Cyprinidae \
     --workdir /data01/xush/1.mitogenome/2.results/${sample}_workdir
 done
@@ -43,7 +68,7 @@ done
 ✅如果是无脊椎动物：
 昆虫：--genetic_code 5 （Invertebrate Mitochondrial）
 其他具体分类可能不同，可以查：NCBI genetic code tables
----------------------------------------------
+-----------------------------------------------
 
 
 ---------------------------------------------
