@@ -1,14 +1,26 @@
-## 建树
+## 🌼🌼🌼建树🌼🌼🌼
 
-# 需要软件trimal、macse、translatorx、samtools、seqkit、iqtree
-# 如果有的基因缺失，需要将缺失的序列用NNN补上，否则串联时该个体的其他序列也串联不起来，造成个体数据缺失
-# 对每个基因单独进行比对和过滤
-# translatorx运行完毕后会将序列的原顺序打乱，因此需要提前将序列命名为物种名，以便后续用seqkit concat同一物种不同基因的序列串联在一起
+# 需要软件trimal、macse、translatorx、samtools、seqkit、iqtree、mafft
 # translatorx这个文件这个代码调整过，请替换
 
-cd /home/wangyf/wyf/bmkdata/liyu-alignment/83gene
+## 🌼🌼🌼单个基因建树🌼🌼🌼
+conda activate trans_iqtree
+translatorx -i COI.final.fa -o COI.transx -p F -c 2 # 按照编码的氨基酸进行序列比对
+java -jar /data01/xush/0.software/macse_v2.07.jar -prog exportAlignment -align COI.transx.nt_ali.fasta -codonForInternalStop NNN -codonForFinalStop --- -gc_def 02 # 对终止密码子进行标注，后面是对生成的NT文件建立索引
 
-source activate trans
+samtools faidx COI.transx.nt_ali_NT.fasta # 对生成的fasta文件建立索引
+# 分partition构建线粒体蛋白编码基因系统发生树
+# 制作一个partition file，参考如下命令，将每个氨基酸的第1个碱基、第2个碱基、第3个碱基分成不同的partition
+cat mito_gene_list | while read gene; do echo ${gene}; head -n 1 ${gene}.transx.nt_ali_NT.fasta.fai | awk '{print $2}'; done | paste - - | awk 'BEGIN{tot=0; line=0} {print "DNA, part"line*3+1" = "tot+1"-"tot+$2"\\3\n""DNA, part"line*3+2" = "tot+2"-"tot+$2"\\3\n""DNA, part"line*3+3" = "tot+3"-"tot+$2"\\3";tot=tot+$2;line+=1}' > partition.file
+
+# 建树
+iqtree -s COI.transx.nt_ali_NT.fasta --seed 6574744 -T 5 -m MFP+MERGE -B 1000 --prefix cdstest -p partition.file
+# 得到的结果文件中.contree 和.treefile 文件下载下来，用FigTree软件/iTOL网站看
+
+
+## 🌼🌼🌼13个编码基因建树🌼🌼🌼
+
+
 cat mito_gene_list | while read gene; do \
 /home/wangyf/translatorx -i ${gene}.fa -o ${gene}.transx -p F -c 2; \ # 按照编码的氨基酸进行序列比对
 java -jar /home/wangyf/macse_v2.06.jar -prog exportAlignment -align ${gene}.transx.nt_ali.fasta -codonForInternalStop NNN -codonForFinalStop --- -gc_def 02; \ # 对终止密码子进行标注，后面是对生成的NT文件建立索引
