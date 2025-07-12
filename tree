@@ -20,7 +20,6 @@ iqtree -s COI.transx.nt_ali_NT.fasta --seed 6574744 -T 5 -m MFP+MERGE -B 1000 --
 
 ## 🌼🌼🌼13个编码基因建树🌼🌼🌼
 
-
 cat mito_gene_list | while read gene; do \
 /home/wangyf/translatorx -i ${gene}.fa -o ${gene}.transx -p F -c 2; \ # 按照编码的氨基酸进行序列比对
 java -jar /home/wangyf/macse_v2.06.jar -prog exportAlignment -align ${gene}.transx.nt_ali.fasta -codonForInternalStop NNN -codonForFinalStop --- -gc_def 02; \ # 对终止密码子进行标注，后面是对生成的NT文件建立索引
@@ -53,12 +52,3 @@ source activate iqtree
 iqtree -s concat.fasta --seed 6574744 -T 5 -m MFP+MERGE -B 1000 --prefix cdstest -p partition.file
 
 # 得到的结果文件中.contree 和.treefile 文件下载下来，用FigTree软件/iTOL网站看
-
-conda activate base
-cat mito_gene_list| while read gene; do ls ${gene}.transx.macse.trimal.transx.fasta.nt_ali_NT.fasta; done > infile.list
-seqkit concat --infile-list infile.list --out-file concat.fasta
-cat mito_gene_list | while read gene; do echo ${gene}; head -n 1 ${gene}.transx.macse.trimal.transx.fasta.nt_ali_NT.fasta.fai | awk '{print $2}'; done | paste - - | awk 'BEGIN{tot=0; line=0} {print "DNA, part"line*3+1" = "tot+1"-"tot+$2"\\3\n""DNA, part"line*3+2" = "tot+2"-"tot+$2"\\3\n""DNA, part"line*3+3" = "tot+3"-"tot+$2"\\3";tot=tot+$2;line+=1}' > partition.file
-cat mito_gene_list | while read gene; do echo ${gene}; head -n 1 ${gene}.transx.nt_ali_NT.fasta.fai | awk '{print $2}'; done | paste - - | awk 'BEGIN{tot=0; line=0} {print "DNA, part"line*3+1" = "tot+1"-"tot+$2"\\3\n""DNA, part"line*3+2" = "tot+2"-"tot+$2"\\3\n""DNA, part"line*3+3" = "tot+3"-"tot+$2"\\3";tot=tot+$2;line+=1}' > partition.file
-
-source activate iqtree
-iqtree -s concat.fasta --seed 6574744 -T 5 -m MFP+MERGE -B 1000 --prefix rna -p partition.file
