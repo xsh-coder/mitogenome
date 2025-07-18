@@ -19,6 +19,33 @@ iqtree -s COI.transx.nt_ali_NT.fasta --seed 6574744 -T 5 -m MFP+MERGE -B 1000 --
 
 
 ## 🌼🌼🌼13个编码基因建树🌼🌼🌼
+先构建了一个13.gene.list，然后按照13个蛋白去提取序列
+# 先读入 13.gene.list
+GENES=$(cat 13.gene.list | tr -d '>') # 遍历每个_genes.fa文件
+for file in *_genes.fa; do
+    tag=$(basename "$file" _genes.fa) # 提取物种名作为标签
+    out="${tag}_filtered_genes.fa"
+    awk -v genes="$GENES" -v tag="$tag" '
+        BEGIN{
+            n=split(genes, arr, "\n")
+            for(i=1; i<=n; i++) keep[arr[i]]=1
+        }
+        /^>/ {
+            split($0, a, " ")
+            gsub(/^>/, "", a[1])
+            gene=a[1]
+            if (keep[gene]) {
+                print ">"gene"_"tag
+                keep_seq=1
+            } else {
+                keep_seq=0
+            }
+            next
+        }
+        keep_seq { print }
+    ' "$file" > "$out"
+done  ## 得到的是注释了13个蛋白的filtered_genes.fa
+
 
 cat mito_gene_list | while read gene; do \
 /home/wangyf/translatorx -i ${gene}.fa -o ${gene}.transx -p F -c 2; \ # 按照编码的氨基酸进行序列比对
